@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Message {
+  id                  String   @id @default(cuid())
+  senderName          String
+  senderEmail         String
+  subject             String
+  body                String
+  category            String
+  status              String   @default("Pending")
+  requiresHumanReview Boolean  @default(false)
+  confidence          Float
+  extractedDetails    Json?
+  draftReply          String?
+  aiReason            String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  messageId String?
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
