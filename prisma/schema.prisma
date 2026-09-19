@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Message {
+  id                  String   @id @default(cuid())
+  provider            String   @default("manual")
+  providerMessageId   String?  @unique
+  threadId            String?
+  senderName          String
+  senderEmail         String
+  subject             String
+  body                String
+  category            String
+  status              String   @default("Pending")
+  requiresHumanReview Boolean  @default(false)
+  confidence          Float
+  extractedDetails    Json?
+  draftReply          String?
+  aiReason            String?
+  deliveryStatus      String   @default("NotSent")
+  sentAt              DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  replies             Reply[]
+}
+
+model Reply {
+  id                  String   @id @default(cuid())
+  messageId           String
+  providerMessageId   String?
+  body                String
+  status              String   @default("Queued")
+  error               String?
+  createdAt           DateTime @default(now())
+  sentAt              DateTime?
+
+  message             Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  messageId String?
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
+
+model GmailConnection {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  accessToken  String
+  refreshToken String
+  tokenExpiry  DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
